@@ -7,6 +7,7 @@ import dbConfig from './database/config/db.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TransformInterceptor } from './common/interceptors';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { TransformInterceptor } from './common/interceptors';
       inject: [ConfigService]
     }),
 
-    AuthModule, UsersModule
+    AuthModule, UsersModule, AdminModule
   ],
   providers: [
     {

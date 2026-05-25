@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { IUser } from "../../../interfaces";
-import { UserRole } from "../../../common/enum";
+import { UserRole, UserStatus } from "../../../common/enum";
 
 @Entity("users")
 export class User implements IUser {
@@ -25,6 +25,12 @@ export class User implements IUser {
 
 	@Column({ type: "enum", enum: UserRole, default: UserRole.GUEST })
 	role: UserRole;
+
+	@Column({ type: "boolean", default: false })
+	isBlocked: boolean;
+
+	@Column({ type: "enum", enum: UserStatus, default: UserStatus.INACTIVE })
+	status: UserStatus;
 
 	@CreateDateColumn()
 	createdAt: Date;

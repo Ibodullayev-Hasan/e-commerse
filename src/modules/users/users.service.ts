@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, ForbiddenException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { PaginationDto } from './dto/pagination.dto';
 import * as bcrypt from 'bcryptjs';
+import { AdminUpdateUserDto } from '../admin/dto/admin-update.dto';
 
 @Injectable()
 export class UsersService {
@@ -51,10 +52,6 @@ export class UsersService {
     };
   };
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
   // by email
   async findByEmail(email: string): Promise<User> {
     const user = await this.userRepo.findOne({
@@ -72,13 +69,54 @@ export class UsersService {
     };
 
     return user
-  }
+  };
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+  // get your own profile
+  async myProfile(user: User): Promise<User> {
+    const findUser = await this.userRepo.findOne({
+      where: { email: user.email },
+    });
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
+    return findUser
+  };
+
+  // update user profile
+  async updateProfile(user: { sub: string }, updateUserDto: UpdateUserDto): Promise<User> {
+    try {
+      const existingUser = await this.userRepo.findOne({
+        where: { id: user.sub },
+      });
+      const mergedUser = this.userRepo.merge(existingUser, updateUserDto);
+
+      const savedUser = await this.userRepo.save(mergedUser);
+
+      delete savedUser.hashedPassword
+
+      return savedUser;
+    } catch (error: any) {
+      throw error instanceof HttpException
+        ? error
+        : new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  };
+
+  // manage user
+  async manageUser(id: string, dto: AdminUpdateUserDto): Promise<User> {
+    try {
+      const existingUser = await this.userRepo.findOne({
+        where: { id },
+      });
+      const mergedUser = this.userRepo.merge(existingUser, dto);
+
+      const savedUser = await this.userRepo.save(mergedUser);
+
+      delete savedUser.hashedPassword
+      return savedUser;
+    } catch (error: any) {
+      throw error instanceof HttpException
+        ? error
+        : new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  };
+
 }
