@@ -1,0 +1,1 @@
+export const res = (message: string, data?: any) => ({ message, data })

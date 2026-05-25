@@ -1,34 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { res } from '../../common/helper';
+import { JwtGuard, RoleGuard } from '../auth/guards';
+import { CurrentUser, Roles } from '../../common/decorators';
+import { UserRole } from '../../common/enum';
+import { AdminUpdateUserDto } from '../admin/dto/admin-update.dto';
+import { User } from './entities/user.entity';
 
-@Controller('users')
+@UseGuards(JwtGuard, RoleGuard)
+@Controller('user')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
+  @Get('me')
+  async myProfile(@CurrentUser() user: User) {
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
-  }
+    const data = await this.usersService.myProfile(user);
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
+    return res(`Users data`, data);
+  };
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
-  }
+  @Patch('profile')
+  async updateProfile(
+    @CurrentUser() user: { sub: string },
+    @Body() dto: UpdateUserDto,
+  ) {
+    const data = await this.usersService.updateProfile(user, dto);
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
-  }
+    return res(`User successfully updated!`, data);
+  };
+
 }

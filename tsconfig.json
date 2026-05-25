@@ -6,6 +6,13 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
+    "types": [
+      "express"
+    ],
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
