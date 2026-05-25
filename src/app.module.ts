@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import dbConfig from './database/config/db.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { TransformInterceptor } from './common/interceptors';
 
 @Module({
   imports: [
@@ -23,6 +25,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
 
     AuthModule, UsersModule
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor
+    }
   ]
 })
 export class AppModule { };

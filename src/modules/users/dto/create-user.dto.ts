@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, Length, Matches, MinLength } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length, Matches, MinLength } from "class-validator";
+import { UserRole } from "../../../common/enum";
 
 export class CreateUserDto {
 
@@ -12,7 +13,7 @@ export class CreateUserDto {
 	@MinLength(6, { message: `Kamida 6 xonadan iborat bo'lsin` })
 	@Matches(
 		/^(?=.*[A-Z])(?=.*[a-z]{2,})(?=.*\d{3,}).+$/,
-		{ message: `Kamida 1 ta katta harf, 2 ta kichik harf va 3 ta raqam bo'lsin` }
+		{ message: `Kamida 1 ta katta harf, 2 ta kichik harf va 3 ta raqam bo'lsin:  Jon123` }
 	)
 	password?: string
 
@@ -23,4 +24,8 @@ export class CreateUserDto {
 	@IsString()
 	@IsOptional()
 	phoneNumber: string
+
+	@IsOptional()
+	@IsEnum(UserRole)
+	role: UserRole
 }

@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { IUser } from "../../../interfaces";
+import { UserRole } from "../../../common/enum";
 
 @Entity("users")
 export class User implements IUser {
@@ -11,9 +12,9 @@ export class User implements IUser {
 	fullName: string;
 
 	@Column({ type: "text", select: false, nullable: true })
-	password?: string;
+	hashedPassword?: string;
 
-	@Column("text")
+	@Column({ type: "text", unique: true })
 	email: string;
 
 	@Column({ type: "boolean", default: false })
@@ -21,4 +22,13 @@ export class User implements IUser {
 
 	@Column({ type: "varchar", length: 13, nullable: true })
 	phoneNumber?: string;
+
+	@Column({ type: "enum", enum: UserRole, default: UserRole.GUEST })
+	role: UserRole;
+
+	@CreateDateColumn()
+	createdAt: Date;
+
+	@UpdateDateColumn()
+	updatedAt: Date;
 }

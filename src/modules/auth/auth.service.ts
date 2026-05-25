@@ -1,46 +1,53 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-
+import { User } from '../users/entities/user.entity';
+import { LoginDto } from './dto/login.dto';
+import { TokenService } from '../../common/services/token.service';
+import * as bcrypt from 'bcryptjs';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UsersService
+    private readonly userService: UsersService,
+    private readonly tokenService: TokenService
   ) { }
 
   // new user registration
-  async register(createUserDto: CreateUserDto): Promise<object> {
-    try {
+  async register(createUserDto: CreateUserDto): Promise<User> {
 
+    try {
       const user = await this.userService.create(createUserDto);
 
-      delete user.password;
+      delete user.hashedPassword;
 
-      return {
-        success: true,
-        message: `User registred`,
-        data: user
-      };
+      return user
     } catch (error: any) {
-      throw new BadRequestException()
+      throw error instanceof HttpException
+        ? error
+        : new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-  }
+  };
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  // user login
+  async login(loginDto: LoginDto): Promise<string> {
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    try {
+      const { email, password } = loginDto
+      const user = await this.userService.findByEmail(email);
+      
+      const comparedPasword = await bcrypt.compare(password, user.hashedPassword);
+      
+      if (!comparedPasword) {
+        throw new UnauthorizedException(`Incorrect password!`)
+      };
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+      const token = await this.tokenService.generator(user);
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
+      return token.accToken;
+    } catch (error: any) {
+      throw error instanceof HttpException
+        ? error
+        : new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  };
 }

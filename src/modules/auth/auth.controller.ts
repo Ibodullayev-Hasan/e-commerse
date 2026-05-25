@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { res } from '../../common/helper';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -10,17 +10,18 @@ export class AuthController {
 
   @Post("register")
   @HttpCode(201)
-  register(@Body() createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
+  async register(@Body() createUserDto: CreateUserDto) {
+    const data = await this.authService.register(createUserDto);
+
+    return res(`User registred`, data)
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
+  @Post("login")
+  @HttpCode(200)
+  async login(@Body() loginDto: LoginDto) {
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
-  }
+    const data = await this.authService.login(loginDto);
+
+    return res(`User logined`, { acessToken: data });
+  };
 }

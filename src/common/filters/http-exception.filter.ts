@@ -12,13 +12,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
 		const messages: Record<number, string> = {
 			404: "Mavjud bo'lmagan route",
 			405: `${request.method} metodi bu route da ruxsat etilmagan`,
-			403: "Ruxsat yo'q",
-			401: 'Autentifikatsiya talab qilinadi',
 		};
 
 		const isDev = process.env.NODE_ENV === 'development';
 
-		// 404/405/403/401 bo'lsa custom xabar, aks holda validation/boshqa xabar
 		const message = messages[status] ?? (
 			typeof exceptionResponse === 'object'
 				? (exceptionResponse as any).message

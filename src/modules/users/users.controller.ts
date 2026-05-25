@@ -1,15 +1,23 @@
-import { Controller, Get, Body, Patch, Param, Delete, MethodNotAllowedException, HttpCode } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, MethodNotAllowedException, HttpCode, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { res } from '../../common/helper';
+import { JwtGuard, RoleGuard } from '../auth/guards';
+import { Roles } from '../../common/decorators';
+import { UserRole } from '../../common/enum';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @UseGuards(JwtGuard, RoleGuard)
+  @Roles(UserRole.ADMIN)
+  @Get('all')
+  async findAll(@Query() paginationDto: PaginationDto) {
+    const data = await this.usersService.findAll(paginationDto);
+
+    return res(`Users data`, data)
   }
 
   @Get(':id')
@@ -19,7 +27,7 @@ export class UsersController {
 
   @Patch()
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-   throw new MethodNotAllowedException()
+    throw new MethodNotAllowedException()
   }
 
   @Delete(':id')

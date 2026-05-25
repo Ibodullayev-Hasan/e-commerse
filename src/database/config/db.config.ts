@@ -7,6 +7,6 @@ export default registerAs('database', (): PostgresConnectionOptions => ({
   applicationName: 'e-commerse',
   url: process.env.DATABASE_URI as string,
   entities: [path.join(__dirname, '../../**/*.entity.{ts,js}')],
-  logging: true,
-  synchronize: true, 
+  logging: false,
+  synchronize: false, 
 }));

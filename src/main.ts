@@ -19,7 +19,6 @@ async function bootstrap() {
     app.setGlobalPrefix(configService.getOrThrow("PREFIX"))
     app.enableVersioning({ type: VersioningType.URI, defaultVersion: configService.getOrThrow("VERSION") });
 
-    app.useGlobalInterceptors(new LoggingInterceptor());
     app.useGlobalFilters(new HttpExceptionFilter);
 
     setupGlobalPipes(app);
