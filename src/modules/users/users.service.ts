@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { PaginationDto } from './dto/pagination.dto';
 import * as bcrypt from 'bcryptjs';
 import { AdminUpdateUserDto } from '../admin/dto/admin-update.dto';
+import { SearchDto } from '../admin/dto/search.dto';
 
 @Injectable()
 export class UsersService {
@@ -71,6 +72,41 @@ export class UsersService {
     return user
   };
 
+  //  find user by id 
+  async findById(id: string) {
+    try {
+      const user = await this.userRepo.findOne({ where: { id } });
+
+      if (!user) throw new NotFoundException(`User topilmadi`);
+
+      return user
+    } catch (error: any) {
+      throw error instanceof HttpException
+        ? error
+        : new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  };
+
+  // find user by name
+  async findByName(dto: SearchDto) {
+    try {
+      const user = this.userRepo
+        .createQueryBuilder('users')
+        .where('users.fullName ILIKE :fullName', { fullName: `%${dto.fullName}%` })
+        .take(dto.limit)
+        .skip(dto.offset)
+        .getManyAndCount();
+
+      if (!user) throw new NotFoundException(`Bu ism bo'yicha user topilmadi`);
+
+      return user
+    } catch (error: any) {
+      throw error instanceof HttpException
+        ? error
+        : new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  };
+
   // get your own profile
   async myProfile(user: User): Promise<User> {
     const findUser = await this.userRepo.findOne({
@@ -100,7 +136,7 @@ export class UsersService {
     }
   };
 
-  // manage user
+  // manage user for admin
   async manageUser(id: string, dto: AdminUpdateUserDto): Promise<User> {
     try {
       const existingUser = await this.userRepo.findOne({

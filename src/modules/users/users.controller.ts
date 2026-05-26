@@ -31,5 +31,6 @@ export class UsersController {
 
     return res(`User successfully updated!`, data);
   };
+  
 
 }

@@ -8,6 +8,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TransformInterceptor } from './common/interceptors';
 import { AdminModule } from './modules/admin/admin.module';
+import { ProductModule } from './modules/product/product.module';
+import { BascketModule } from './modules/bascket/bascket.module';
+import { OrderModule } from './modules/order/order.module';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
@@ -25,7 +29,7 @@ import { AdminModule } from './modules/admin/admin.module';
       inject: [ConfigService]
     }),
 
-    AuthModule, UsersModule, AdminModule
+    AuthModule, UsersModule, AdminModule, ProductModule, BascketModule, OrderModule, CategoryModule
   ],
   providers: [
     {

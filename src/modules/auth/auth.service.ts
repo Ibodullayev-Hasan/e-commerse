@@ -29,25 +29,44 @@ export class AuthService {
   };
 
   // user login
-  async login(loginDto: LoginDto): Promise<string> {
+  async login(loginDto: LoginDto): Promise<{
+    accToken: string,
+    refToken: string,
+  }> {
 
     try {
       const { email, password } = loginDto
       const user = await this.userService.findByEmail(email);
-      
+
       const comparedPasword = await bcrypt.compare(password, user.hashedPassword);
-      
+
       if (!comparedPasword) {
         throw new UnauthorizedException(`Incorrect password!`)
       };
 
-      const token = await this.tokenService.generator(user);
+      const { accToken, refToken } = await this.tokenService.generator(user);
 
-      return token.accToken;
+      return { accToken, refToken };
     } catch (error: any) {
       throw error instanceof HttpException
         ? error
         : new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   };
+
+  // refresh token
+  async refresh(user: User): Promise<{
+    accToken: string,
+    refToken: string,
+  }> {
+    try {
+      const { accToken, refToken } = await this.tokenService.generator(user);
+
+      return { accToken, refToken }
+    } catch (error: any) {
+      throw error instanceof HttpException
+        ? error
+        : new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

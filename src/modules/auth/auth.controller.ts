@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { res } from '../../common/helper';
 import { LoginDto } from './dto/login.dto';
+import { RefreshGuard } from './guards';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -14,14 +16,28 @@ export class AuthController {
     const data = await this.authService.register(createUserDto);
 
     return res(`User registred`, data)
-  }
+  };
 
   @Post("login")
   @HttpCode(200)
   async login(@Body() loginDto: LoginDto) {
 
-    const data = await this.authService.login(loginDto);
+    const tokens = await this.authService.login(loginDto);
 
-    return res(`User logined`, { acessToken: data });
+    return res(`Successfully logged in`, {
+      accToken: tokens.accToken,
+      refToken: tokens.refToken,
+    });
   };
+
+  @UseGuards(RefreshGuard)
+  @Post('refresh')
+  @HttpCode(200)
+  async refreshToken(@Req() req: Request) {
+
+    const data = await this.authService.refresh(req.user);
+
+    return res(`Successfully refresh tokens`, { tokens: data })
+  };
+
 }
