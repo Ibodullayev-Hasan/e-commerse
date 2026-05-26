@@ -13,7 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "typeorm": "ts-node -r tsconfig-paths/register ./src/database/data-source.ts",
-    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d ./src/database/data-source.ts src/database/migrations/RoleFieldAdd",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d ./src/database/data-source.ts src/database/migrations/ProductEntityUpdated",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d ./src/database/data-source.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d ./src/database/data-source.ts",
     "migration:show": "typeorm-ts-node-commonjs migration:show -d ./src/database/data-source.ts",
