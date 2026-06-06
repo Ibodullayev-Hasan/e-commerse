@@ -5,6 +5,7 @@ import { User } from '../users/entities/user.entity';
 import { LoginDto } from './dto/login.dto';
 import { TokenService } from '../../common/services/token.service';
 import * as bcrypt from 'bcryptjs';
+import { IJwtPayload } from '../../interfaces';
 @Injectable()
 export class AuthService {
   constructor(
@@ -44,7 +45,7 @@ export class AuthService {
         throw new UnauthorizedException(`Incorrect password!`)
       };
 
-      const { accToken, refToken } = await this.tokenService.generator(user);
+      const { accToken, refToken } = await this.tokenService.generator(user as unknown as IJwtPayload);
 
       return { accToken, refToken };
     } catch (error: any) {
@@ -55,7 +56,7 @@ export class AuthService {
   };
 
   // refresh token
-  async refresh(user: User): Promise<{
+  async refresh(user: IJwtPayload): Promise<{
     accToken: string,
     refToken: string,
   }> {
@@ -68,5 +69,5 @@ export class AuthService {
         ? error
         : new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-  }
+  };
 }

@@ -111,6 +111,7 @@ export class UsersService {
   async myProfile(user: User): Promise<User> {
     const findUser = await this.userRepo.findOne({
       where: { email: user.email },
+      relations:{basket:true}
     });
 
     return findUser
@@ -134,6 +135,11 @@ export class UsersService {
         ? error
         : new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
+  };
+
+  // update user email status
+  async updateEmailStatus(userId: string, emailVerifed: boolean): Promise<void> {
+    this.userRepo.update({ id: userId }, { emailVerifed });
   };
 
   // manage user for admin

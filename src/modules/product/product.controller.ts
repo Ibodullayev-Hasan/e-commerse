@@ -25,12 +25,14 @@ export class ProductController {
   @Get()
   async findAll(@Query() dto: ProductPaginationDto) {
     const data = await this.productService.findAll(dto);
-    return res(`Products`, data);
+    return res(`Products data`, data);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const data = await this.productService.findOne(id);
+
+    return res(`Product by id: ${id}`, { product: data })
   }
 
   @Patch(':id')

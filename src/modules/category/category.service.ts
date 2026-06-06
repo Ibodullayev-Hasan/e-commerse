@@ -29,8 +29,20 @@ export class CategoryService {
     }
   };
 
-  findAll() {
-    return `This action returns all category`;
+  async findAll(): Promise<Category[]> {
+    try {
+      const category = await this.categoryRepo
+        .createQueryBuilder('category')
+        .leftJoin('category.products', 'product')
+        .addSelect(['product.id', 'product.productName'])
+        .getMany();
+
+      return category
+    } catch (error: any) {
+      throw error instanceof HttpException
+        ? error
+        : new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    };
   }
 
   // find by name Category
@@ -48,9 +60,14 @@ export class CategoryService {
     }
   }
 
-  async findOneById(id: string) {
+  async findById(id: string) {
     try {
-      const category = await this.categoryRepo.findOne({ where: { id }, relations: { products: true } });
+      const category = await this.categoryRepo
+        .createQueryBuilder('category')
+        .leftJoin('category.products', 'product')
+        .addSelect(['product.id', 'product.productName'])
+        .where('category.id = :id', { id })
+        .getOne();
 
       if (!category) throw new NotFoundException(`Category mavjud emas`);
 

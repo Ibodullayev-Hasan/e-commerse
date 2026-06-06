@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { IUser } from "../../../interfaces";
 import { UserRole, UserStatus } from "../../../common/enum";
+import { Basket } from "../../basket/entities/basket.entity";
 
 @Entity("users")
 export class User implements IUser {
@@ -31,6 +32,9 @@ export class User implements IUser {
 
 	@Column({ type: "enum", enum: UserStatus, default: UserStatus.INACTIVE })
 	status: UserStatus;
+
+	@OneToOne(() => Basket, basket => basket.user)
+	basket: Basket
 
 	@CreateDateColumn()
 	createdAt: Date;

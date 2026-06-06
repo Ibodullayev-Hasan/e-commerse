@@ -24,7 +24,7 @@ export class ProductService {
 
   async create(dto: CreateProductDto): Promise<Product> {
     try {
-      const category = await this.categoryService.findOneById(dto.categoryId);
+      const category = await this.categoryService.findById(dto.categoryId);
 
       if (!category) throw new NotFoundException(`Category mavjud emas`);
 
@@ -72,10 +72,10 @@ export class ProductService {
     }
   }
 
-  findOne(id: number) {
+  async findOne(id: string) {
     try {
 
-      return
+      return await this.productRepo.findOne({ where: { id } })
     } catch (error: any) {
       throw error instanceof HttpException
         ? error

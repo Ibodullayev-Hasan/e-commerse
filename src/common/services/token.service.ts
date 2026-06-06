@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from "../../modules/users/entities/user.entity";
 import { JwtService } from '@nestjs/jwt';
 import * as CryptoJS from 'crypto-js';
+import { IJwtPayload } from '../../interfaces';
 
 
 @Injectable()
@@ -21,7 +22,7 @@ export class TokenService {
 		this.refreshTime = parseInt(process.env.JWT_REFRESH_EXPIRES_TIME || '604800');
 	}
 
-	async generator(user: User): Promise<{
+	async generator(user: IJwtPayload): Promise<{
 		accToken: string,
 		refToken: string,
 		accessExpiresIn: number,
@@ -32,14 +33,14 @@ export class TokenService {
 				throw new HttpException('Missing secret keys', HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 
-			const payload = { sub: user.id, email: user.email, role: user.role };
+			const payload = { sub: user.sub, email: user.email, role: user.role };
 
 			const [accToken, refToken] = await Promise.all([
 				this.jwtService.signAsync(payload, { secret: this.jwtSecretKey, expiresIn: this.accessTime, algorithm: "HS512" }),
 				this.jwtService.signAsync(payload, { secret: this.refreshSecretKey, expiresIn: this.refreshTime, algorithm: "HS512" }),
 			]);
 
-			// JWT'ni AES-256 bilan shifrlash (string formatga o'tkazish)
+			// JWT'ni AES-256 bilan shifrlash
 			const encryptedAccToken = CryptoJS.AES.encrypt(accToken, this.aesKey).toString();
 			const encryptedRefToken = CryptoJS.AES.encrypt(refToken, this.aesKey).toString();
 

@@ -5,10 +5,16 @@ import { res } from '../../common/helper';
 import { LoginDto } from './dto/login.dto';
 import { RefreshGuard } from './guards';
 import { Request } from 'express';
+import { MailService } from './mail/mail.service';
+import { CurrentUser } from '../../common/decorators';
+import { IJwtPayload } from '../../interfaces';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(
+    private readonly authService: AuthService,
+
+  ) { }
 
   @Post("register")
   @HttpCode(201)
@@ -33,11 +39,10 @@ export class AuthController {
   @UseGuards(RefreshGuard)
   @Post('refresh')
   @HttpCode(200)
-  async refreshToken(@Req() req: Request) {
+  async refreshToken(@CurrentUser() user: IJwtPayload) {
 
-    const data = await this.authService.refresh(req.user);
+    const data = await this.authService.refresh(user);
 
     return res(`Successfully refresh tokens`, { tokens: data })
   };
-
 }
