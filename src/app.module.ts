@@ -16,6 +16,7 @@ import { JwtModule } from '@nestjs/jwt';
 import dbConfig from './database/config/db.config';
 import { MailModule } from './modules/auth/mail/mail.module';
 import { RedisModule } from './modules/auth/mail/redis.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,7 +42,14 @@ import { RedisModule } from './modules/auth/mail/redis.module';
       })
     }),
 
-    AuthModule, UsersModule, AdminModule, ProductModule, OrderModule, CategoryModule, BasketModule, MailModule,
+    AuthModule,
+    UsersModule,
+    AdminModule,
+    ProductModule,
+    OrderModule,
+    CategoryModule,
+    BasketModule,
+    MailModule,
     RedisModule
   ],
   providers: [
@@ -50,5 +58,6 @@ import { RedisModule } from './modules/auth/mail/redis.module';
       useClass: TransformInterceptor
     }
   ]
+
 })
 export class AppModule { };

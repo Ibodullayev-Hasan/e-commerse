@@ -4,8 +4,6 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { res } from '../../common/helper';
 import { LoginDto } from './dto/login.dto';
 import { RefreshGuard } from './guards';
-import { Request } from 'express';
-import { MailService } from './mail/mail.service';
 import { CurrentUser } from '../../common/decorators';
 import { IJwtPayload } from '../../interfaces';
 

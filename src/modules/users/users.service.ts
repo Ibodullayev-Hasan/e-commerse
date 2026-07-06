@@ -1,4 +1,11 @@
-import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -32,7 +39,7 @@ export class UsersService {
     return await this.userRepo.save(newUser);
   }
 
-  // all users
+  // find all users
   async findAll({ page = 1, limit = 20, order }: PaginationDto) {
     const skip = (page - 1) * limit;
 
@@ -53,7 +60,7 @@ export class UsersService {
     };
   };
 
-  // by email
+  // find by email
   async findByEmail(email: string): Promise<User> {
     const user = await this.userRepo.findOne({
       where: { email },
@@ -111,7 +118,7 @@ export class UsersService {
   async myProfile(user: User): Promise<User> {
     const findUser = await this.userRepo.findOne({
       where: { email: user.email },
-      relations:{basket:true}
+      relations: { basket: true }
     });
 
     return findUser
@@ -123,6 +130,8 @@ export class UsersService {
       const existingUser = await this.userRepo.findOne({
         where: { id: user.sub },
       });
+      if (!existingUser) throw new NotFoundException(`id #${user.sub} bilan user topilmadi`);
+
       const mergedUser = this.userRepo.merge(existingUser, updateUserDto);
 
       const savedUser = await this.userRepo.save(mergedUser);
@@ -145,9 +154,9 @@ export class UsersService {
   // manage user for admin
   async manageUser(id: string, dto: AdminUpdateUserDto): Promise<User> {
     try {
-      const existingUser = await this.userRepo.findOne({
-        where: { id },
-      });
+      const existingUser = await this.findById(id);
+      if (!existingUser) throw new NotFoundException(`id #${id} bilan user topilmadi`);
+
       const mergedUser = this.userRepo.merge(existingUser, dto);
 
       const savedUser = await this.userRepo.save(mergedUser);

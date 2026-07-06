@@ -5,14 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Basket } from './entities/basket.entity';
 import { UsersModule } from '../users/users.module';
 import { TokenService } from '../../common/services/token.service';
+import { BasketItem } from './entities/basket-item.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Basket]),
+    TypeOrmModule.forFeature([Basket, BasketItem]),
     forwardRef(() => UsersModule)
   ],
   controllers: [BasketController],
   providers: [BasketService, TokenService],
-  exports: [BasketService, TypeOrmModule.forFeature([Basket]),]
+  exports: [BasketService, TypeOrmModule.forFeature([Basket, BasketItem]),]
 })
 export class BasketModule { }
